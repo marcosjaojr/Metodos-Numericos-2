@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from numpy import *
-# Método de Householder
+# Método QR
 # Aluno: Marcos José Augusto de Oliveira Júnior
 # Matricula: 370021
 
