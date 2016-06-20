@@ -5,12 +5,22 @@ from numpy import *
 # Matricula: 370021
 
 def iniciarMatriz():
-    arquivo = open('matriz.db', 'r')
+    arquivo = open('matriz2.db', 'r')
     return matrix([ map(float,linha.split('|')[0].split(',')) for linha in arquivo ])
+
+def definirTolerancia():
+    arquivo = open('matriz2.db', 'r')
+    return float(arquivo.readline().split('|')[1])
+
+def iniciarSistema():
+    return iniciarMatriz(), definirTolerancia()
 
 def arredondar(A, tempA, Q):
     fator = 4
     return A.round(fator).tolist(), tempA.round(fator).tolist(), Q.round(fator).tolist()
+
+def toleravel(old, new, tol):
+    return (absolute(old.round(5)-new.round(5)) <= tol*absolute(new)).all()
 
 def imprimirNaTela(A, D, Q):
     print('\n----- Resultado -----')
@@ -72,37 +82,41 @@ def decomposicaoQR(tempA):
     n = len(tempA)
     R = tempA
     Q = identity(n)
-    
+
     for i in range(n-1):
-          Qh = householderMetodo(R, i)
-          R = Qh*R
-          Q = Q*Qh.transpose()
+        Qh = householderMetodo(R, i)
+        R = Qh*R
+        Q = Q*Qh.transpose()
     return Q, R
 
 def algoritmoQR(A, tol):
-    # TODO: substituir for por while com critério de parada
+    nValido = 1;
+
     tempA = A
     Q = identity(len(A))
-    for i in range(0,tol):
-          tempQ, R = decomposicaoQR(tempA)
-          Q = Q*tempQ # acumular matriz Q
-          tempA = tempQ.transpose()*tempA*tempQ
+    while nValido:
+        tempQ, R = decomposicaoQR(tempA)
+        Q = Q*tempQ # acumular matriz Q
+        oldA = tempA
+        tempA = tempQ.transpose()*tempA*tempQ
+
+        if toleravel(oldA,tempA, tol):
+            nValido = 0
 
     return tempA, Q
-    
+
 
 def main():
     print "\n################## SEJA BEM-VINDO! ##################"
     print "Sistema para o método QR\n"
     iniciar = raw_input("Tecle [ENTER] para iniciar\n")
-    
-    A = iniciarMatriz()
-    # TODO: Ler tolerância do arquivo de texto
 
-    tempA, Q = algoritmoQR(A, 30)
+    A, tol = iniciarSistema()
+
+    tempA, Q = algoritmoQR(A, tol)
     testarAutovetores(A, Q)
     A, tempA, Q = arredondar(A, tempA, Q)
-    
+
     imprimirNaTela(A, tempA, Q)
     imprimirEmArquivo(A, tempA, Q)
 main()
