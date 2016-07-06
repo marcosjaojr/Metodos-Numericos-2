@@ -55,7 +55,7 @@ def metodoDaPotenciaInversa(A, x, tol):
         if toleravel(l_old, l_new, tol):
             true = 0
 
-    return l_old, phi
+    return l_old**-1, phi
 
 def iniciarSistema():
     arquivo = open('matriz.db', 'r')
